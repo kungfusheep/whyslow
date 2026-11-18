@@ -1,6 +1,8 @@
 # whyslow
 
-Run a benchmark, get told *why* it's slow. whyslow records Apple Silicon PMU counters (cycles, instructions, cache misses, mispredicts) with stacks through Instruments, maps them to source with inline frames, and prints:
+Run a benchmark, get told *why* it's slow
+
+whyslow records Apple Silicon PMU counters (cycles, instructions, cache misses, mispredicts) with stacks through Instruments, maps them to source with inline frames, and prints:
 - which kind of stall dominates;
 - which functions and lines it comes from;
 - the code on those lines.
