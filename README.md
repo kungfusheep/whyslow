@@ -25,7 +25,7 @@ Run `whyslow` with no arguments to pick from what it finds in the current direct
 SmallPayload = zig-out/bin/jinzig-bench-fused -filter SmallPayload
 ```
 
-Type to filter, `enter` to profile, or `ctrl-r` to profile whatever you typed as a command. Progress streams in while it records, then the report appears in a scrollable view: `p` opens the profile in pprof's web UI, `i` opens the trace in Instruments, `r` re-runs, `x` stops the recording cleanly and `esc` goes back to the list. Flags such as `-benchtime` and `-events=false` apply to every run from the picker.
+Type to filter, `enter` to profile, or `ctrl-r` to profile whatever you typed as a command. Progress streams in while it records, then the report appears in a scrollable view: `p` opens the profile in pprof's web UI, `i` opens the trace in Instruments, `r` re-runs, `x` stops the recording cleanly and `esc` goes back to the list. `?` (or `ctrl-g` in the list) shows every key. It shares the look of the mail and calendar apps: `T` (`ctrl-t` in the list) cycles the same dark, light and MFD themes, and the choice is saved to `~/.config/whyslow/settings.json`. Flags such as `-benchtime` and `-events=false` apply to every run from the picker.
 
 macOS on Apple Silicon with Xcode installed (it drives `xctrace`). No other dependencies.
 

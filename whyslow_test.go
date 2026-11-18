@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"debug/macho"
-	glyph "github.com/kungfusheep/glyph"
+	. "github.com/kungfusheep/glyph"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -217,7 +217,7 @@ func TestANSISpans(t *testing.T) {
 	for _, s := range spans {
 		got = append(got, fmt.Sprintf("%q:%d", s.Text, s.Style.Attr))
 	}
-	want := []string{`"  ":0`, fmt.Sprintf(`"hot":%d`, glyph.AttrBold), `" line ":0`, fmt.Sprintf(`"code":%d`, glyph.AttrDim)}
+	want := []string{`"  ":0`, fmt.Sprintf(`"hot":%d`, AttrBold), `" line ":0`, fmt.Sprintf(`"code":%d`, AttrDim)}
 	if strings.Join(got, " ") != strings.Join(want, " ") {
 		t.Errorf("got %v, want %v", got, want)
 	}
@@ -281,5 +281,49 @@ func TestPerfLevels(t *testing.T) {
 		if l.name == "" || l.cores <= 0 {
 			t.Errorf("bad level %+v in %+v", l, levels)
 		}
+	}
+}
+
+func TestExpandTabs(t *testing.T) {
+	for in, want := range map[string]string{
+		"BenchmarkX-18\t  42\t1 ns/op": "BenchmarkX-18     42    1 ns/op",
+		"CBZ\tR2, copy0":               "CBZ     R2, copy0",
+		"\x1b[2mMOVD\tR7\x1b[0m":       "\x1b[2mMOVD    R7\x1b[0m", // escapes take no columns
+		"no tabs":                      "no tabs",
+	} {
+		if got := expandTabs(in); got != want {
+			t.Errorf("expandTabs(%q) = %q, want %q", in, got, want)
+		}
+	}
+}
+
+func TestReportSpansRoles(t *testing.T) {
+	logTheme.Store(&themeDark)
+	find := func(line, text string) Span {
+		for _, sp := range reportSpans(line) {
+			if strings.Contains(sp.Text, text) {
+				return sp
+			}
+		}
+		t.Fatalf("no span with %q in %q", text, line)
+		return Span{}
+	}
+	if sp := find("\x1b[1mcounters\x1b[0m", "counters"); sp.Style.FG != themeDark.Bright || sp.Style.Attr&AttrBold == 0 {
+		t.Errorf("heading: %+v", sp.Style)
+	}
+	if sp := find("  x\x1b[2m  ← concentrates mispredicts\x1b[0m", "←"); sp.Style.FG != themeDark.Accent {
+		t.Errorf("hotspot flag: %+v", sp.Style)
+	}
+	if sp := find("  useful work  43.8%  ████", "█"); sp.Style.FG != themeDark.Info {
+		t.Errorf("bar: %+v", sp.Style)
+	}
+	if sp := find("  \x1b[1m⚠ the counters recording spent\x1b[0m", "⚠"); sp.Style.FG != themeDark.Warning {
+		t.Errorf("warning: %+v", sp.Style)
+	}
+	if sp := find("whyslow: context canceled", "canceled"); sp.Style.FG != themeDark.Error {
+		t.Errorf("error: %+v", sp.Style)
+	}
+	if sp := find("  plain body", "plain"); sp.Style.FG != themeDark.FG {
+		t.Errorf("body: %+v", sp.Style)
 	}
 }
