@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  whyslow's counter instrument: a stack sample plus raw PMU counters on a fixed timer.
+  the trigger is deliberately time-based. a PMI trigger on a frequent event (e.g. every 1000 L1D
+  misses) interrupts the machine so often it can wedge the whole system.
+-->
+<package>
+    <id>com.whyslow.counters</id>
+    <title>whyslow</title>
+    <owner>
+        <name>whyslow</name>
+    </owner>
+    <import-schema>counters-profile</import-schema>
+
+    <instrument>
+        <id>com.whyslow.counters.sampler</id>
+        <title>whyslow Counters</title>
+        <category>CPU</category>
+        <purpose>Samples stacks on a timer with cache, TLB and branch counters attached.</purpose>
+        <icon>Generic</icon>
+
+        <create-table>
+            <id>whyslow-samples</id>
+            <schema-ref>counters-profile</schema-ref>
+            <attribute>
+                <name>target-pid</name>
+                <string>SINGLE</string>
+            </attribute>
+            <attribute>
+                <name>needs-kernel-callstack</name>
+                <string>0</string>
+            </attribute>
+            <attribute>
+                <name>trigger</name>
+                <string>time</string>
+            </attribute>
+            <attribute>
+                <name>sample-rate-micro-seconds</name>
+                <integer>1000</integer>
+            </attribute>
+            <attribute>
+                <name>pmc-events</name>
+                <array>
+                    <string>FIXED_CYCLES</string>
+                    <string>FIXED_INSTRUCTIONS</string>
+                    <string>L1D_CACHE_MISS_LD_NONSPEC</string>
+                    <string>L1D_CACHE_MISS_ST_NONSPEC</string>
+                    <string>L1I_CACHE_MISS_DEMAND</string>
+                    <string>BRANCH_MISPRED_NONSPEC</string>
+                    <string>L1D_TLB_MISS_NONSPEC</string>
+                    <string>LDST_UNIT_WAITING_OLD_L1D_CACHE_MISS</string>
+                </array>
+            </attribute>
+        </create-table>
+
+        <list>
+            <title>Samples</title>
+            <table-ref>whyslow-samples</table-ref>
+            <column>time</column>
+            <column>thread</column>
+            <column>weight</column>
+            <column>stack</column>
+        </list>
+    </instrument>
+</package>
