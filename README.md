@@ -1,6 +1,6 @@
 # whyslow
 
-Runs a benchmark then reports data around hot paths and CPU cache figures.
+Runs a benchmark then reports data around hot paths and pmu figures.
 
 whyslow records Apple Silicon PMU counters (cycles, instructions, cache misses, mispredicts) with stacks through Instruments, maps them to source with inline frames, and prints:
 - which kind of stall dominates;
